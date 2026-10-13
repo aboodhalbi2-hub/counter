@@ -1,659 +1,808 @@
-<!DOCTYPE html>
+
+<!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>حاسبة استهلاك الكهرباء</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#155eef">
+  <meta name="description" content="حاسبة عربية لاستهلاك الكهرباء وتكلفتها مع سجل أسبوعي وفحص تجريبي لا يحفظ البيانات.">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="حاسبة الكهرباء">
+  <link rel="manifest" href="./manifest.json">
+  <link rel="icon" href="./icons/icon-192.png" type="image/png">
+  <title>حاسبة الكهرباء</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f3f6fb;
+      --card: #fff;
+      --text: #172033;
+      --muted: #687386;
+      --primary: #155eef;
+      --primary-dark: #1049bd;
+      --line: #e0e7f0;
+      --green: #12805c;
+      --red: #b42318;
+      --soft: #edf4ff;
+      --shadow: 0 8px 28px rgba(18, 35, 66, .07);
+    }
 
-<style>
-* {
-    box-sizing: border-box;
-}
+    * { box-sizing: border-box; }
 
-body {
-    margin: 0;
-    padding: 15px;
-    font-family: Arial, sans-serif;
-    background: #f1f5f9;
-    color: #172554;
-}
-
-.container {
-    max-width: 600px;
-    margin: auto;
-}
-
-.header {
-    background: linear-gradient(135deg, #2563eb, #1d4ed8);
-    color: white;
-    text-align: center;
-    padding: 25px 15px;
-    border-radius: 18px;
-    margin-bottom: 18px;
-}
-
-.header h1 {
-    margin: 0 0 8px;
-    font-size: 25px;
-}
-
-.header p {
-    margin: 0;
-    font-size: 15px;
-}
-
-.card {
-    background: white;
-    padding: 18px;
-    margin-bottom: 15px;
-    border-radius: 15px;
-    box-shadow: 0 3px 12px #0000000b;
-}
-
-h2 {
-    font-size: 18px;
-    margin: 0 0 15px;
-}
-
-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 8px;
-}
-
-input {
-    width: 100%;
-    padding: 13px;
-    border: 1px solid #cbd5e1;
-    border-radius: 10px;
-    font-size: 18px;
-    margin-bottom: 14px;
-    background: white;
-    color: #172554;
-}
-
-button {
-    padding: 13px;
-    border: none;
-    border-radius: 10px;
-    font-size: 15px;
-    font-weight: bold;
-    cursor: pointer;
-    margin-top: 5px;
-}
-
-.primary {
-    background: #2563eb;
-    color: white;
-    width: 100%;
-}
-
-.secondary {
-    background: #e2e8f0;
-    color: #1e293b;
-}
-
-.success {
-    background: #15803d;
-    color: white;
-    width: 100%;
-}
-
-.danger {
-    background: #b91c1c;
-    color: white;
-    width: 100%;
-}
-
-.reading-row {
-    display: flex;
-    gap: 8px;
-    align-items: stretch;
-}
-
-.reading-row input {
-    flex: 1;
-    min-width: 0;
-}
-
-.copy-button {
-    background: #dbeafe;
-    color: #1d4ed8;
-    margin: 0 0 14px;
-    white-space: nowrap;
-}
-
-.result {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-top: 15px;
-}
-
-.result-box {
-    padding: 16px 10px;
-    border-radius: 12px;
-    background: #eff6ff;
-    text-align: center;
-    overflow-wrap: anywhere;
-}
-
-.result-box strong {
-    display: block;
-    font-size: 23px;
-    color: #2563eb;
-    margin-top: 10px;
-}
-
-.result-box small {
-    color: #64748b;
-}
-
-.note {
-    font-size: 13px;
-    color: #64748b;
-    line-height: 1.8;
-}
-
-.message {
-    font-size: 14px;
-    line-height: 1.8;
-    margin-top: 10px;
-    overflow-wrap: anywhere;
-}
-
-.history-item {
-    border-bottom: 1px solid #e2e8f0;
-    padding: 12px 0;
-    line-height: 1.9;
-    overflow-wrap: anywhere;
-}
-
-.history-item:last-child {
-    border-bottom: none;
-}
-
-.hidden {
-    display: none;
-}
-
-@media (max-width: 360px) {
     body {
-        padding: 8px;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, "Segoe UI", Tahoma, Arial, sans-serif;
+      line-height: 1.6;
     }
 
-    .reading-row {
-        flex-wrap: wrap;
+    .wrap {
+      width: min(900px, 100%);
+      margin: 0 auto;
+      padding: 16px;
     }
 
-    .copy-button {
-        width: 100%;
+    header {
+      background: linear-gradient(135deg, #155eef, #073b9b);
+      color: white;
+      padding: 24px 20px;
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+      margin: 8px 0 16px;
     }
 
-    .result-box strong {
-        font-size: 19px;
+    header h1 {
+      margin: 0 0 4px;
+      font-size: clamp(1.5rem, 5vw, 2.1rem);
     }
-}
-</style>
+
+    header p { margin: 0; opacity: .92; }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 13px;
+      padding: 12px;
+      font: inherit;
+      font-weight: 750;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--primary);
+      border-color: var(--primary);
+      background: var(--soft);
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow);
+    }
+
+    h2 { font-size: 1.2rem; margin: 0 0 12px; }
+    h3 { font-size: 1rem; margin: 18px 0 8px; }
+
+    .hint {
+      color: var(--muted);
+      font-size: .92rem;
+      margin: -5px 0 14px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    label {
+      display: block;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 12px;
+      background: white;
+      color: var(--text);
+      font: inherit;
+      font-size: 1rem;
+    }
+
+    input:focus {
+      outline: 3px solid rgba(21, 94, 239, .15);
+      border-color: var(--primary);
+    }
+
+    .field { margin-bottom: 13px; }
+
+    .reading-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .reading-label-row label { margin-bottom: 6px; }
+
+    .copy-reading-btn {
+      background: #edf1f7;
+      color: #273449;
+      border: 1px solid #d7dfeb;
+      padding: 5px 11px;
+      font-size: .82rem;
+      border-radius: 9px;
+      margin-bottom: 6px;
+    }
+
+    button {
+      font: inherit;
+      cursor: pointer;
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 15px;
+      font-weight: 750;
+    }
+
+    button:focus-visible {
+      outline: 3px solid rgba(21, 94, 239, .3);
+      outline-offset: 2px;
+    }
+
+    .primary {
+      background: var(--primary);
+      color: white;
+      width: 100%;
+    }
+
+    .primary:hover { background: var(--primary-dark); }
+    .secondary { background: #edf1f7; color: #273449; }
+    .danger { background: #fff0ef; color: var(--red); }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .button-row button { flex: 1 1 150px; }
+    .save-week-row { justify-content: center; }
+
+    .save-week-row #saveWeek {
+      flex: 0 1 420px;
+      width: min(100%, 420px);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .stat {
+      background: #f7faff;
+      border: 1px solid #dce8fb;
+      border-radius: 14px;
+      padding: 14px;
+      min-width: 0;
+    }
+
+    .stat span {
+      display: block;
+      color: var(--muted);
+      font-size: .88rem;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: clamp(1.15rem, 4vw, 1.6rem);
+      overflow-wrap: anywhere;
+      margin-top: 3px;
+    }
+
+    .stat small { color: var(--muted); }
+
+    .notice {
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: #effaf5;
+      color: var(--green);
+      margin-top: 12px;
+    }
+
+    .notice.error {
+      background: #fff1f0;
+      color: var(--red);
+    }
+
+    .table-wrap { overflow-x: auto; }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 570px;
+      font-size: .92rem;
+    }
+
+    th, td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line);
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    th { background: #f7f9fc; color: #4b5565; }
+
+    .empty {
+      color: var(--muted);
+      text-align: center;
+      padding: 20px 8px;
+    }
+
+    .foot {
+      text-align: center;
+      color: var(--muted);
+      font-size: .85rem;
+      padding: 8px 0 22px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #fff4d6;
+      color: #815500;
+      border-radius: 99px;
+      padding: 2px 9px;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+
+    @media (max-width: 540px) {
+      .wrap { padding: 10px; }
+      header { border-radius: 17px; padding: 20px 16px; }
+      .card { padding: 15px; border-radius: 15px; }
+      .grid { grid-template-columns: 1fr; gap: 0; }
+      .stats { gap: 8px; }
+      .stat { padding: 11px; }
+      .tabs { gap: 6px; }
+      .tab { padding: 10px 7px; font-size: .92rem; }
+    }
+  </style>
 </head>
-
 <body>
+  <main class="wrap">
+    <header>
+      <h1>⚡ حاسبة الكهرباء</h1>
+      <p>احسب الاستهلاك والتكلفة، واحفظ حسابك الأسبوعي على هذا الجهاز.</p>
+    </header>
 
-<div class="container">
+    <nav class="tabs" aria-label="أقسام الحاسبة">
+      <button class="tab active" type="button" data-tab="mainPanel">📘 حسابي الأساسي</button>
+      <button class="tab" type="button" data-tab="testPanel">🧪 فحص تجريبي</button>
+    </nav>
 
-<header class="header">
-    <h1>⚡ حاسبة الكهرباء</h1>
-    <p>تابع استهلاكك واحسب تكلفتك بسهولة</p>
-</header>
+    <section id="mainPanel" class="panel active">
+      <div class="card">
+        <h2>إعدادات وقراءات الأسبوع</h2>
+        <p class="hint">هذه البيانات تُحفظ في متصفحك على هذا الجهاز فقط.</p>
 
-<section class="card">
-    <h2>💰 سعر الكهرباء</h2>
+        <div class="grid">
+          <div class="field">
+            <label for="price">سعر الكيلو (شيكل)</label>
+            <input id="price" type="number" min="0" step="0.01" inputmode="decimal" placeholder="مثال: 28">
+          </div>
 
-    <label for="price">سعر الكيلو (شيكل)</label>
-    <input id="price" type="number" min="0"
-           step="0.01" placeholder="مثال: 28">
+          <div class="field">
+            <label for="oldReading">القراءة القديمة</label>
+            <input id="oldReading" type="text" inputmode="decimal" autocomplete="off" placeholder="مثال: 16500.0">
+          </div>
+        </div>
 
-    <button class="secondary" id="savePrice">
-        حفظ سعر الكيلو
-    </button>
-</section>
+        <div class="field">
+          <label for="oldDate">موعد القراءة القديمة</label>
+          <input id="oldDate" type="datetime-local">
+          <p class="hint">موعد القراءة الجديدة يُسجَّل تلقائيًا عند إنهاء الأسبوع.</p>
+        </div>
 
-<section class="card" id="setupCard">
-    <h2>🔢 حفظ القراءة الأساسية</h2>
+        <div class="field">
+          <div class="reading-label-row">
+            <label for="currentReading">القراءة الحالية</label>
+            <button id="copyOldToCurrent" class="copy-reading-btn" type="button">نسخ القديمة</button>
+          </div>
+          <input id="currentReading" type="text" inputmode="decimal" autocomplete="off" placeholder="مثال: 16520.0">
+        </div>
 
-    <p class="note">
-        أدخل قراءة العداد لأول مرة لتكون نقطة بداية الحساب.
-    </p>
+        <button id="calculateMain" class="primary" type="button">احسب الاستهلاك والتكلفة</button>
 
-    <label for="initialReading">قراءة العداد</label>
-    <input id="initialReading" type="text"
-           inputmode="decimal" placeholder="مثال: 0000.0">
-
-    <button class="primary" id="saveInitial">
-        حفظ القراءة الأساسية
-    </button>
-
-    <div class="message" id="setupMessage" role="status"></div>
-</section>
-
-<section class="card hidden" id="calculatorCard">
-    <h2>🧮 حساب الاستهلاك التجريبي</h2>
-
-    <label for="baseDisplay">القراءة الأساسية المحفوظة</label>
-    <input id="baseDisplay" type="text" readonly>
-
-    <label for="currentReading">القراءة الحالية</label>
-
-    <div class="reading-row">
-        <input id="currentReading" type="text"
-               inputmode="decimal"
-               placeholder="أدخل قراءة العداد">
-
-        <button type="button" class="copy-button" id="copyReading">
-            📋 نسخ القديمة
-        </button>
-    </div>
-
-    <button class="primary" id="calculate">
-        احسب الاستهلاك
-    </button>
-
-    <div class="result">
-        <div class="result-box">
-            الاستهلاك
-            <strong id="units">—</strong>
+        <div class="stats" aria-live="polite">
+          <div class="stat">
+            <span>الاستهلاك</span>
+            <strong id="mainUnits">—</strong>
             <small>كيلوواط ساعة</small>
-        </div>
-
-        <div class="result-box">
-            التكلفة
-            <strong id="cost">—</strong>
+          </div>
+          <div class="stat">
+            <span>التكلفة</span>
+            <strong id="mainCost">—</strong>
             <small>شيكل</small>
+          </div>
         </div>
-    </div>
 
-    <div class="message" id="calcMessage" role="status"></div>
+        <div id="mainMessage" aria-live="polite"></div>
 
-    <p class="note">
-        الحساب التجريبي لا يحفظ القراءة الحالية ولا يغير القراءة الأساسية.
-    </p>
+        <div class="button-row save-week-row">
+          <button id="saveWeek" class="primary" type="button">إنهاء الأسبوع وحفظه</button>
+        </div>
+      </div>
 
-    <button class="success" id="finishWeek">
-        إنهاء الأسبوع والدفع
-    </button>
-</section>
+      <div class="card">
+        <h2>📚 سجل الأسابيع</h2>
+        <p class="hint">عند إنهاء الأسبوع، تُحفظ النتيجة ويُعتمد العداد الحالي قراءةً قديمة للأسبوع التالي.</p>
 
-<section class="card">
-    <h2>📊 سجل الأسابيع</h2>
-    <div id="history">
-        <p class="note">لا توجد أسابيع مسجلة حتى الآن.</p>
-    </div>
-</section>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>موعد القراءة القديمة</th>
+                <th>موعد القراءة الجديدة</th>
+                <th>القراءة القديمة</th>
+                <th>القراءة الجديدة</th>
+                <th>سعر الكيلو</th>
+                <th>السحب</th>
+                <th>التكلفة</th>
+              </tr>
+            </thead>
+            <tbody id="historyBody">
+              <tr><td colspan="7" class="empty">لا يوجد سجل محفوظ بعد.</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-<section class="card">
-    <h2>⚙️ إدارة البيانات</h2>
+        <div class="button-row">
+          <button id="exportData" class="secondary" type="button">تصدير نسخة احتياطية</button>
+          <button id="clearHistory" class="danger" type="button">مسح سجل الأسابيع</button>
+        </div>
+      </div>
+    </section>
 
-    <button class="danger" id="resetData">
-        مسح جميع البيانات
-    </button>
+    <section id="testPanel" class="panel">
+      <div class="card">
+        <h2>🧪 فحص عداد شخص آخر <span class="badge">بدون حفظ</span></h2>
+        <p class="hint">أدخل قراءات العداد وسعر الكيلو. لا تُحفظ أي خانة من هذا القسم ولا تدخل نتائجه في سجل الأسابيع.</p>
 
-    <p class="note">
-        سيؤدي هذا إلى حذف القراءة الأساسية والسعر وسجل الأسابيع المحفوظ.
-    </p>
-</section>
+        <div class="field">
+          <label for="testPrice">سعر الكيلو (شيكل)</label>
+          <input id="testPrice" type="number" min="0" step="0.01" inputmode="decimal" placeholder="اتركه فارغًا لاستخدام سعر حسابك">
+        </div>
 
-</div>
+        <div class="field">
+          <label for="testOld">القراءة القديمة</label>
+          <input id="testOld" type="text" inputmode="decimal" autocomplete="off" placeholder="أدخل القراءة القديمة">
+        </div>
 
-<script>
-const $ = id => document.getElementById(id);
+        <div class="field">
+          <label for="testCurrent">القراءة الحالية</label>
+          <input id="testCurrent" type="text" inputmode="decimal" autocomplete="off" placeholder="أدخل القراءة الحالية">
+        </div>
 
-const STORAGE_KEY = "electricityCalculator_v2";
+        <button id="calculateTest" class="primary" type="button">احسب الفحص</button>
 
-function emptyState() {
-    return {
-        price: "",
-        base: null,
-        baseText: "",
-        startDate: null,
-        history: []
-    };
-}
+        <div class="stats" aria-live="polite">
+          <div class="stat">
+            <span>الاستهلاك</span>
+            <strong id="testUnits">—</strong>
+            <small>كيلوواط ساعة</small>
+          </div>
+          <div class="stat">
+            <span>التكلفة</span>
+            <strong id="testCost">—</strong>
+            <small>شيكل</small>
+          </div>
+        </div>
 
-function loadState() {
-    try {
+        <div id="testMessage" aria-live="polite"></div>
+
+        <div class="button-row">
+          <button id="clearTest" class="secondary" type="button">مسح الفحص بالكامل</button>
+        </div>
+      </div>
+    </section>
+
+    <div class="foot">البيانات الأساسية محفوظة محليًا في هذا المتصفح فقط. حذف بيانات المتصفح قد يحذف السجل.</div>
+  </main>
+
+  <script>
+  (() => {
+    "use strict";
+
+    const STORAGE_KEY = "electricityCalculator.v1";
+    const $ = id => document.getElementById(id);
+
+    const numberFormat = value => Number(value).toLocaleString("en-US", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 3
+    });
+
+    function formatDate(value) {
+      if (!value) return "غير محدد";
+      const d = new Date(value);
+      return Number.isNaN(d.getTime()) ? value : d.toLocaleString("ar");
+    }
+
+    function localDateTimeValue(date = new Date()) {
+      return new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString().slice(0, 16);
+    }
+
+    function parseReading(value) {
+      const normalized = String(value ?? "").trim()
+        .replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d))
+        .replace(/[۰-۹]/g, d => "۰۱۲۳۴۵۶۷۸۹".indexOf(d))
+        .replace(/٫/g, ".")
+        .replace(/,/g, "");
+
+      if (!normalized || !/^\d+(\.\d+)?$/.test(normalized)) return null;
+
+      const n = Number(normalized);
+      return Number.isFinite(n) && n >= 0 ? n : null;
+    }
+
+    function loadState() {
+      try {
         const raw = localStorage.getItem(STORAGE_KEY);
 
-        if (!raw) return emptyState();
-
-        const data = JSON.parse(raw);
-
-        if (!Array.isArray(data.history)) {
-            data.history = [];
+        if (!raw) {
+          return {
+            price: "",
+            oldReading: "",
+            currentReading: "",
+            oldDate: "",
+            currentDate: "",
+            history: []
+          };
         }
 
-        if (
-            data.base !== null &&
-            data.base !== undefined &&
-            (!Number.isFinite(Number(data.base)) ||
-             Number(data.base) < 0)
-        ) {
-            data.base = null;
-        }
+        const parsed = JSON.parse(raw);
 
         return {
-            ...emptyState(),
-            ...data
+          price: parsed.price ?? "",
+          oldReading: parsed.oldReading ?? "",
+          currentReading: parsed.currentReading ?? "",
+          oldDate: parsed.oldDate ?? "",
+          currentDate: parsed.currentDate ?? "",
+          history: Array.isArray(parsed.history) ? parsed.history : []
         };
-    } catch {
-        return emptyState();
+      } catch {
+        return {
+          price: "",
+          oldReading: "",
+          currentReading: "",
+          oldDate: "",
+          currentDate: "",
+          history: []
+        };
+      }
     }
-}
 
-let state = loadState();
+    let state = loadState();
 
-function saveState() {
-    try {
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(state)
-        );
-
+    function persist() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         return true;
-    } catch {
-        alert("تعذر حفظ البيانات في المتصفح.");
+      } catch {
+        showMessage(
+          "mainMessage",
+          "تعذّر حفظ البيانات في المتصفح. قد تكون مساحة التخزين ممتلئة.",
+          true
+        );
         return false;
+      }
     }
-}
 
-function parseReading(value) {
-    const text = value.trim().replace(",", ".");
+    function showMessage(id, text, error = false) {
+      const el = $(id);
+      el.className = text ? (error ? "notice error" : "notice") : "";
+      el.textContent = text;
+    }
 
-    if (!/^\d+(\.\d+)?$/.test(text)) {
+    function calculate(oldValue, currentValue, priceValue) {
+      const oldN = parseReading(oldValue);
+      const currentN = parseReading(currentValue);
+      const priceText = String(priceValue ?? "").trim();
+      const priceN = priceText === "" ? null : Number(priceText);
+
+      if (oldN === null || currentN === null) {
+        return { error: "أدخل القراءتين بشكل صحيح، والأرقام العشرية مسموحة." };
+      }
+
+      if (currentN < oldN) {
+        return { error: "القراءة الحالية أقل من القراءة القديمة. تأكد من الأرقام." };
+      }
+
+      if (priceN === null || !Number.isFinite(priceN) || priceN < 0) {
+        return { error: "أدخل سعر الكيلو بشكل صحيح." };
+      }
+
+      const units = currentN - oldN;
+
+      return {
+        oldN,
+        currentN,
+        priceN,
+        units,
+        cost: units * priceN
+      };
+    }
+
+    function refreshMain() {
+      $("price").value = state.price;
+      $("oldReading").value = state.oldReading;
+      $("currentReading").value = state.currentReading;
+      $("oldDate").value = state.oldDate || "";
+
+      renderHistory();
+      calculateMain(false);
+    }
+
+    function calculateMain(showSuccess = true) {
+      const result = calculate(
+        $("oldReading").value,
+        $("currentReading").value,
+        $("price").value
+      );
+
+      if (result.error) {
+        $("mainUnits").textContent = "—";
+        $("mainCost").textContent = "—";
+        showMessage("mainMessage", result.error, true);
         return null;
+      }
+
+      $("mainUnits").textContent = numberFormat(result.units);
+      $("mainCost").textContent = numberFormat(result.cost);
+
+      showMessage(
+        "mainMessage",
+        showSuccess ? "تم الحساب. لم يُحفظ سجل أسبوع جديد بعد." : ""
+      );
+
+      return result;
     }
 
-    const number = Number(text);
+    function renderHistory() {
+      const body = $("historyBody");
+      body.replaceChildren();
 
-    return Number.isFinite(number) && number >= 0
-        ? number
-        : null;
-}
+      if (!state.history.length) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
 
-function formatNumber(value, digits = 2) {
-    return Number(value).toLocaleString("en-US", {
-        minimumFractionDigits: 0,
-        maximumFractionDigits: digits
-    });
-}
+        cell.colSpan = 7;
+        cell.className = "empty";
+        cell.textContent = "لا يوجد سجل محفوظ بعد.";
 
-function dateText(value) {
-    if (!value) return "—";
-
-    return new Date(value).toLocaleDateString("ar", {
-        year: "numeric",
-        month: "short",
-        day: "numeric"
-    });
-}
-
-function render() {
-    $("price").value = state.price;
-
-    const hasBase = state.base !== null;
-
-    $("setupCard").classList.toggle("hidden", hasBase);
-    $("calculatorCard").classList.toggle("hidden", !hasBase);
-
-    if (hasBase) {
-        $("baseDisplay").value =
-            state.baseText || String(state.base);
-    }
-
-    renderHistory();
-}
-
-function renderHistory() {
-    const container = $("history");
-    container.replaceChildren();
-
-    if (!state.history.length) {
-        const p = document.createElement("p");
-        p.className = "note";
-        p.textContent = "لا توجد أسابيع مسجلة حتى الآن.";
-        container.appendChild(p);
+        row.appendChild(cell);
+        body.appendChild(row);
         return;
+      }
+
+      [...state.history].reverse().forEach(item => {
+        const row = document.createElement("tr");
+
+        [
+          formatDate(item.oldDate),
+          formatDate(item.currentDate),
+          numberFormat(item.oldReading),
+          numberFormat(item.currentReading),
+          numberFormat(item.price) + " شيكل",
+          numberFormat(item.units) + " كيلوواط ساعة",
+          numberFormat(item.cost) + " شيكل"
+        ].forEach(value => {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          row.appendChild(cell);
+        });
+
+        body.appendChild(row);
+      });
     }
 
-    [...state.history].reverse().forEach(item => {
-        const div = document.createElement("div");
-        div.className = "history-item";
-
-        const title = document.createElement("strong");
-        title.textContent =
-            "الفترة: " + dateText(item.startDate) +
-            " — " + dateText(item.endDate);
-
-        const details = document.createElement("div");
-        details.textContent =
-            "القراءة السابقة: " + item.startText +
-            " | القراءة الجديدة: " + item.endText;
-
-        const summary = document.createElement("div");
-        summary.textContent =
-            "الاستهلاك: " + formatNumber(item.units, 4) +
-            " كيلوواط ساعة | التكلفة: " +
-            formatNumber(item.cost) + " شيكل";
-
-        div.append(title, details, summary);
-        container.appendChild(div);
-    });
-}
-
-// حفظ سعر الكيلو
-$("savePrice").addEventListener("click", () => {
-    const value = $("price").value.trim();
-    const number = Number(value);
-
-    if (
-        value === "" ||
-        !Number.isFinite(number) ||
-        number < 0
-    ) {
-        alert("أدخل سعرًا صحيحًا للكيلو.");
-        return;
+    function saveMainInputs() {
+      state.price = $("price").value;
+      state.oldReading = $("oldReading").value;
+      state.currentReading = $("currentReading").value;
+      state.oldDate = $("oldDate").value;
+      persist();
     }
 
-    const previous = state.price;
-    state.price = number;
+    ["price", "oldReading", "currentReading", "oldDate"].forEach(id => {
+      $(id).addEventListener("change", () => {
+        saveMainInputs();
+        calculateMain(false);
+      });
 
-    if (saveState()) {
-        alert("تم حفظ سعر الكيلو.");
-    } else {
-        state.price = previous;
-    }
-});
-
-// حفظ القراءة الأساسية لأول مرة
-$("saveInitial").addEventListener("click", () => {
-    const text = $("initialReading").value.trim();
-    const reading = parseReading(text);
-
-    if (reading === null) {
-        $("setupMessage").textContent =
-            "أدخل قراءة صحيحة، مثل 0000.0.";
-        return;
-    }
-
-    const oldState = JSON.stringify(state);
-
-    state.base = reading;
-    state.baseText = text;
-    state.startDate = new Date().toISOString();
-
-    if (saveState()) {
-        $("setupMessage").textContent = "";
-        $("currentReading").value = "";
-        render();
-    } else {
-        state = JSON.parse(oldState);
-    }
-});
-
-// زر نسخ القراءة الأساسية إلى خانة القراءة الحالية
-$("copyReading").addEventListener("click", () => {
-    if (state.base === null) return;
-
-    $("currentReading").value =
-        state.baseText || String(state.base);
-
-    $("currentReading").focus();
-    $("calcMessage").textContent =
-        "تم نسخ القراءة القديمة. عدّل الأرقام التي تغيّرت فقط.";
-});
-
-// حساب تجريبي دون حفظ القراءة الحالية
-$("calculate").addEventListener("click", () => {
-    $("calcMessage").textContent = "";
-
-    const current = parseReading(
-        $("currentReading").value
-    );
-
-    const price = Number(state.price);
-
-    if (current === null) {
-        $("calcMessage").textContent =
-            "أدخل قراءة حالية صحيحة.";
-        $("units").textContent = "—";
-        $("cost").textContent = "—";
-        return;
-    }
-
-    if (current < state.base) {
-        $("calcMessage").textContent =
-            "القراءة الحالية أقل من الأساسية. راجع الأرقام أو تحقق من تصفير العداد.";
-        $("units").textContent = "—";
-        $("cost").textContent = "—";
-        return;
-    }
-
-    if (
-        state.price === "" ||
-        !Number.isFinite(price) ||
-        price < 0
-    ) {
-        $("calcMessage").textContent =
-            "احفظ سعر الكيلو أولًا.";
-        $("units").textContent = "—";
-        $("cost").textContent = "—";
-        return;
-    }
-
-    const usage = current - state.base;
-    const total = usage * price;
-
-    $("units").textContent = formatNumber(usage, 4);
-    $("cost").textContent = formatNumber(total);
-
-    $("calcMessage").textContent =
-        "هذا حساب تجريبي من القراءة الأساسية، ولم يتم حفظ القراءة الحالية.";
-});
-
-// إنهاء الأسبوع واعتماد القراءة الجديدة
-$("finishWeek").addEventListener("click", () => {
-    const currentText =
-        $("currentReading").value.trim();
-
-    const current = parseReading(currentText);
-    const price = Number(state.price);
-
-    if (current === null) {
-        alert("أدخل القراءة الحالية أولًا.");
-        return;
-    }
-
-    if (current < state.base) {
-        alert("القراءة الحالية أقل من القراءة الأساسية.");
-        return;
-    }
-
-    if (
-        state.price === "" ||
-        !Number.isFinite(price) ||
-        price < 0
-    ) {
-        alert("احفظ سعر الكيلو أولًا.");
-        return;
-    }
-
-    const usage = current - state.base;
-    const total = usage * price;
-
-    const confirmed = confirm(
-        "ملخص الفترة:\n\n" +
-        "الاستهلاك: " + formatNumber(usage, 4) +
-        " كيلوواط ساعة\n" +
-        "التكلفة: " + formatNumber(total) +
-        " شيكل\n\n" +
-        "هل دفعت المبلغ وتريد اعتماد القراءة الجديدة؟"
-    );
-
-    if (!confirmed) return;
-
-    const oldState = JSON.stringify(state);
-
-    state.history.push({
-        startText: state.baseText || String(state.base),
-        endText: currentText,
-        units: usage,
-        cost: total,
-        startDate: state.startDate,
-        endDate: new Date().toISOString()
+      $(id).addEventListener("input", () => {
+        state[id] = $(id).value;
+        calculateMain(false);
+      });
     });
 
-    state.base = current;
-    state.baseText = currentText;
-    state.startDate = new Date().toISOString();
+    $("copyOldToCurrent").addEventListener("click", () => {
+      const oldValue = $("oldReading").value.trim();
 
-    if (saveState()) {
-        $("currentReading").value = "";
-        $("units").textContent = "—";
-        $("cost").textContent = "—";
-        $("calcMessage").textContent =
-            "تم اعتماد القراءة الجديدة كبداية للفترة القادمة.";
-        render();
-    } else {
-        state = JSON.parse(oldState);
+      if (!oldValue) {
+        showMessage("mainMessage", "أدخل القراءة القديمة أولًا حتى تنسخها.", true);
+        return;
+      }
+
+      $("currentReading").value = oldValue;
+      state.currentReading = oldValue;
+      persist();
+
+      $("currentReading").focus();
+      $("currentReading").setSelectionRange(oldValue.length, oldValue.length);
+
+      calculateMain(false);
+      showMessage("mainMessage", "تم نسخ القراءة القديمة إلى الحالية. عدّل الرقم ثم احسب.");
+    });
+
+    $("calculateMain").addEventListener("click", () => {
+      saveMainInputs();
+      calculateMain(true);
+    });
+
+    $("saveWeek").addEventListener("click", () => {
+      saveMainInputs();
+
+      const result = calculateMain(false);
+      if (!result) return;
+
+      if (!confirm("هل تريد إنهاء الأسبوع وحفظه؟ ستصبح القراءة الحالية هي القراءة القديمة للأسبوع التالي.")) {
+        return;
+      }
+
+      const oldDateValue = $("oldDate").value || "";
+      const currentDateValue = localDateTimeValue();
+
+      state.history.push({
+        oldDate: oldDateValue,
+        currentDate: currentDateValue,
+        oldReading: result.oldN,
+        currentReading: result.currentN,
+        units: result.units,
+        price: result.priceN,
+        cost: result.cost
+      });
+
+      state.oldReading = $("currentReading").value;
+      state.oldDate = currentDateValue;
+
+      $("oldReading").value = state.oldReading;
+      $("oldDate").value = state.oldDate;
+
+      if (persist()) {
+        renderHistory();
+        calculateMain(false);
+
+        showMessage(
+          "mainMessage",
+          "تم حفظ الأسبوع واعتماد القراءة الحالية قراءةً قديمة للأسبوع التالي."
+        );
+      }
+    });
+
+    $("clearHistory").addEventListener("click", () => {
+      if (!state.history.length) {
+        showMessage("mainMessage", "لا يوجد سجل لمسحه.");
+        return;
+      }
+
+      if (!confirm("هل أنت متأكد من مسح سجل الأسابيع؟ لن يمكن التراجع عن هذا الإجراء.")) {
+        return;
+      }
+
+      state.history = [];
+      persist();
+      renderHistory();
+
+      showMessage("mainMessage", "تم مسح سجل الأسابيع. القراءات الحالية لم تتغير.");
+    });
+
+    $("exportData").addEventListener("click", () => {
+      const blob = new Blob(
+        [JSON.stringify(state, null, 2)],
+        { type: "application/json;charset=utf-8" }
+      );
+
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = "electricity-backup.json";
+      a.click();
+
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    // الفحص التجريبي لا يقرأ أو يكتب أي بيانات في التخزين المحلي.
+    $("calculateTest").addEventListener("click", () => {
+      const price = $("testPrice").value.trim() === ""
+        ? $("price").value
+        : $("testPrice").value;
+
+      const result = calculate(
+        $("testOld").value,
+        $("testCurrent").value,
+        price
+      );
+
+      if (result.error) {
+        $("testUnits").textContent = "—";
+        $("testCost").textContent = "—";
+        showMessage("testMessage", result.error, true);
+        return;
+      }
+
+      $("testUnits").textContent = numberFormat(result.units);
+      $("testCost").textContent = numberFormat(result.cost);
+
+      showMessage(
+        "testMessage",
+        "فحص مؤقت فقط؛ لم تُحفظ القراءات أو النتيجة."
+      );
+    });
+
+    $("clearTest").addEventListener("click", () => {
+      ["testPrice", "testOld", "testCurrent"].forEach(id => {
+        $(id).value = "";
+      });
+
+      $("testUnits").textContent = "—";
+      $("testCost").textContent = "—";
+      showMessage("testMessage", "");
+    });
+
+    document.querySelectorAll(".tab").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".tab").forEach(b => {
+          b.classList.toggle("active", b === button);
+        });
+
+        document.querySelectorAll(".panel").forEach(panel => {
+          panel.classList.toggle("active", panel.id === button.dataset.tab);
+        });
+      });
+    });
+
+    refreshMain();
+
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./sw.js").catch(() => {});
+      });
     }
-});
-
-// مسح جميع البيانات
-$("resetData").addEventListener("click", () => {
-    const confirmed = confirm(
-        "هل أنت متأكد من حذف جميع البيانات؟"
-    );
-
-    if (!confirmed) return;
-
-    try {
-        localStorage.removeItem(STORAGE_KEY);
-        state = emptyState();
-
-        $("initialReading").value = "";
-        $("currentReading").value = "";
-        $("units").textContent = "—";
-        $("cost").textContent = "—";
-        $("setupMessage").textContent = "";
-        $("calcMessage").textContent = "";
-
-        render();
-    } catch {
-        alert("تعذر مسح البيانات.");
-    }
-});
-
-render();
-</script>
-
+  })();
+  </script>
 </body>
 </html>
